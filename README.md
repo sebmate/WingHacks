@@ -7,7 +7,7 @@ The tools are implemented in .NET C#.
 
 This is a small task switcher for the Wersi Pegasus Wing keyboard. It allows you to switch between the Wersi OAS application and other Windows programs running in the background. This is very useful when you want to run VSTs and don't want to use a PC keyboard to switch between the Wersi application and the VSTs.
 
-When started, it creates a semi-transparent red window in the upper right corner. When clicking on it, it displays a window with all running tasks:
+When started, it creates a semi-transparent red window in the upper right corner, above the Wersi logo (it's barely visible). When clicking on it, it displays a window with all running tasks:
 
 ![WWSwitcher](WWSwitcher.png)
 
