@@ -1,0 +1,9 @@
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\bin\Debug\WWSwitcher.exe
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\bin\Debug\WWSwitcher.pdb
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\obj\Debug\WWSwitcher.Properties.Resources.resources
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\obj\Debug\WWSwitcher.csproj.GenerateResource.cache
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\obj\Debug\WWSwitcher.csproj.CoreCompileInputs.cache
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\obj\Debug\WWSwitcher.exe
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\obj\Debug\WWSwitcher.pdb
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\obj\Debug\WWSwitch.TaskSwitcher.resources
+F:\Development\VisualStudio\WWSwitcher\WWSwitcher\obj\Debug\WWSwitch.WWSwitch.resources
