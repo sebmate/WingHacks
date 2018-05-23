@@ -147,11 +147,13 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.label1.Location = new System.Drawing.Point(429, 293);
+            this.label1.Location = new System.Drawing.Point(436, 294);
             this.label1.Name = "label1";
+            this.label1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.label1.Size = new System.Drawing.Size(109, 13);
             this.label1.TabIndex = 8;
-            this.label1.Text = "WWSwitcher 0.01";
+            this.label1.Text = "WWSwitcher 0.02";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // switchToOAS
