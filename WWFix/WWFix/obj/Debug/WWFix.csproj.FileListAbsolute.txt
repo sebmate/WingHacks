@@ -1,0 +1,16 @@
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\WWFix.exe
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\WWFix.pdb
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\Sanford.Collections.dll
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\Sanford.Multimedia.dll
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\Sanford.Multimedia.Midi.dll
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\Sanford.Threading.dll
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\Sanford.Multimedia.Timers.dll
+F:\Development\VisualStudio\WWFix\WWFix\bin\Debug\Sanford.Multimedia.Midi.pdb
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.csprojAssemblyReference.cache
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.Properties.Resources.resources
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.WWFixForm.resources
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.csproj.GenerateResource.cache
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.csproj.CoreCompileInputs.cache
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.csproj.CopyComplete
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.exe
+F:\Development\VisualStudio\WWFix\WWFix\obj\Debug\WWFix.pdb
