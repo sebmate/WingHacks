@@ -49,6 +49,13 @@ The tool addresses the following problems:
 **Problem:** On many Lower VB3 instruments, the 16" or 5 1/3" drawbars are active and cannot turned down. In general, it is also not possible to manipulate these two missing drawbars.  
 **Solution:** WWFix simply provides two virtual drawbars on the program's user interface. In addition, the 16" and 5 1/3" drawbars can be controlled via the 8" and 4" drawbars, as long as the "Lower 2 On" button is held pressed. This allows for manipulating the non-existing drawbars without having to switch to the WWFix window.
 
+## Additional Features:
+
+* Press "Ending 1" and "Ending 2" together to trigger a fade-out.
+* Press Organ Typ "A B" and "C D" together to open the VB3 VST.
+* As stated above, keep "Lower 2 On" pressed and use the Lower 8" and 4" drawbar potis to set the 16" and 5 1/3" drawbars.
+
+
 ## Installation
 
 To install the tool, proceed as follows:
@@ -56,15 +63,15 @@ To install the tool, proceed as follows:
 1. Exit the Wersi OAS application.
 2. Copy the FFix program and associated files (from https://github.com/sebmate/WingHacks/tree/master/WWFix/WWFix/bin/Debug) onto a folder on your harddisk. Create a link to FFix.exe, and put this link into the autostart menu of Windows.
 3. Install loopMIDI from https://www.tobias-erichsen.de/software/loopmidi.html
-4. Create two new virtual MIDI ports, "WWFix Input" and "WWFix Output", as shown in the following image. Note that the "VST" port is not required.
+4. Create trhee new virtual MIDI ports, "WWFix Input", "WWFix Output", and "WWFix Output2", as shown in the following image. Note that the "To VST" port is not required.
 
 ![loopMIDI](loopMIDI.png)
 
-4. Launch WWfix. If everything works fine, WWFix should be able to connect to the virtual ports. If this is the case, the program will display the following after startup (notice the four "=>" messages that indicate that the program has successfully connected to "WWFix Input", "WWFix Output" and twice to "Wersi MIDI"):
+4. Launch WWfix. If everything works fine, WWFix should be able to connect to the virtual ports. If this is the case, the program will display the following after startup (notice the "=>" messages that indicate that the program has successfully connected to "WWFix Input", "WWFix Output", "WWFix Output2" and "Wersi MIDI"):
 
 ![WWFixConfig](WWFixConfig.png)
 
-4. Configure the Wersi OAS application as follows. Connect "Manual MIDI In" to "WWFix Ouput" and "Manual MIDI Out" to "WWFix Input":
+4. Configure the Wersi OAS application as follows. Connect "Manual MIDI In" to "WWFix Ouput", "MIDI Pedal In port" to "WWFix Ouput2", and "Manual MIDI Out" to "WWFix Input":
 
 ![WersiCfg](WersiCfg.png)
 
@@ -80,6 +87,7 @@ On older V1 hardware, the installation as described above may not work, because 
 ## Changelog:
 
 * 0.1 to 0.2: Improved many of the original features, added Intro/Ending LEDs fix, added option to control the two missing lower drawbars while holding the "Lower 2 On" button pressed. Message logging reduced by default. Now deletes Wersi OAS log file upon start.
+* 0.2 to 0.3: Improved many of the original features. Support for the two-manual version (Wersi Wing Pegasus Duo). Implemented the features "Fade Out" and quick-opening of the VB3 preset.
 
 
 # WWSwitcher
