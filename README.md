@@ -51,14 +51,33 @@ The tool addresses the following problems:
 
 * Press "Ending 1" and "Ending 2" together to trigger a fade-out.
 * Press Organ Typ "A B" and "C D" together to open the VB3 VST.
+* Single-VB3-VST Mode (see below).
 * As stated above, keep "Lower 2 On" pressed and use the Lower 8" and 4" drawbar potis to set the 16" and 5 1/3" drawbars.
+* Press "Perc On" and "Perc 2nd/3rd" together to open the task switcher (similar to WWSwitch as shown below)
+
+
+## Single-VB3-VST Mode (experimental)
+
+In the later versions of the keyboard's software, Wersi is using two VB3 VSTs at the same time, one for the upper and one for the lower manual. This works fine and improves overall usability, but as you can only open the upper VB3 VST, you can not fine-tune the lower one. Also, and this is a bit awkward, this means that there are actually two Hammonds playing through two rotary speakers. 
+
+Here comes the Single-VB3-VST Mode in WWFix. It basically allows you to use only the "upper" VST also for the lower channel. Here's how to use it:
+
+* Turn of the lower VB3 VST if it's running.
+* Press Organ Typ "A B" and "C D" together to open the VB3 VST.
+* Keep the "Split button" pressed until it blinks. Now press a key on your keyboard to set the split point.
+
+From now on you're in the Single-VB3-VST Mode. WWFix emulates a lower manual and sends all key presses below the split point through this "virtual" lower manual. This allows you to play chords with the auto accompaniment even if the OAS software is not real split mode. And of course, you can use a single VB3 VST to play on the split keyboard.
+
+Experimental: You can use the lower drawbars to controll the VB3 lower ones. This works by emulating mouse drag'n'drop operations and is far from being perfect, so be warned. But you can of course also use the touchscreen. Note that this requires accurate screen coordinates - it will not work if you move the VST window. Also make sure that Windows' appearence setting are set to default.
+
+To leave the Single-VB3-VST Mode, you have to restart the keyboard (or OAS and WWFix). This is because after the OAS software has recieved MIDI events from the lower manual, it thinks it has two and there is no way to stop it from thinking this.
 
 ## Installation
 
 To install the tool, proceed as follows:
 
 1. Exit the Wersi OAS application.
-2. Copy the FFix program and associated files (from https://github.com/sebmate/WingHacks/tree/master/WWFix/WWFix/bin/Debug) onto a folder on your harddisk. Create a link to FFix.exe, and put this link into the autostart menu of Windows.
+2. Copy the FFix program and associated files (from https://github.com/sebmate/WingHacks/tree/master/WWFix/WWFix/bin/Debug) onto a folder on your harddisk. Create a link to WWFix.exe, and put this link into the autostart menu of Windows.
 3. Install loopMIDI from https://www.tobias-erichsen.de/software/loopmidi.html
 4. Create trhee new virtual MIDI ports, "WWFix Input", "WWFix Output", and "WWFix Output2", as shown in the following image. Note that the "To VST" port is not required.
 
@@ -85,9 +104,11 @@ On older V1 hardware, the installation as described above may not work, because 
 
 * 0.1 to 0.2: Improved many of the original features, added Intro/Ending LEDs fix, added option to control the two missing lower drawbars while holding the "Lower 2 On" button pressed. Message logging reduced by default. Now deletes Wersi OAS log file upon start.
 * 0.2 to 0.3: Many improvements and fixes. Support for the two-manual version (Wersi Wing Pegasus Duo). Implemented the features "Fade Out" and quick-opening of the VB3 preset.
-
+* 0.3 to 0.4: Added further delay for pre-loading styles. This may fix the 300 bpm problem. Added the task switcher and Single-VB3-VST Mode.
 
 # WWSwitcher
+
+**Warning: this is now obsolete. The same functionality has been integrated into WWFix (see above). Reason: I never managed to fix the lost-focus problem in WWSitcher.**
 
 This is a small task switcher for the Wersi Pegasus Wing keyboard. It allows you to switch between the Wersi OAS application and other Windows programs running in the background. This is very useful when you want to run VSTs and don't want to use a PC keyboard to switch between the Wersi application and the VSTs. How to run VSTs is described here: https://www.oas-forum.de/viewtopic.php?f=26&t=2598 (in German language).
 
