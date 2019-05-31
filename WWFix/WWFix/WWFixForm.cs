@@ -18,6 +18,7 @@ using Sanford.Multimedia.Midi;
 using System;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 
 // Requires: https://www.codeproject.com/Articles/6228/%2fArticles%2f6228%2fC-MIDI-Toolkit
@@ -59,7 +60,7 @@ namespace WWFix
         private int outDev1Index = -1;
         private int outDev2Index = -1;
         private int outDev3Index = -1;
-        
+
         private int masterVolume = 0;
         Boolean accPlaying = false;
         Boolean userPlaying = false;
@@ -69,14 +70,19 @@ namespace WWFix
         Boolean volumePotiIgnore = false;
         Boolean setLowerDrawbars = false;
         Boolean ignoreLower2OnEvent = false;
+        private int taskSwitcherButtonsPressed = 0;
         private int organTypButtonsPressed = 0;
         private int endingButtonsPressed = 0;
+        private Boolean setSplitPoint = false;
+        private int VB3SplitPoint = 0;
 
+        int[] lowerDrawbarsIst = new int[9];
+        int[] lowerDrawbarsSoll = new int[9];
 
         private int lastIntroEndButtonPressed = 0;
-        
-        Color orange = Color.FromArgb(255-15, 128-15, 0);
-        Color orangeBright = Color.FromArgb(255, 128+15, 0+15);
+
+        Color orange = Color.FromArgb(255 - 15, 128 - 15, 0);
+        Color orangeBright = Color.FromArgb(255, 128 + 15, 0 + 15);
         Color gray = Color.FromArgb(224, 224, 224);
 
         private SynchronizationContext context;
@@ -90,6 +96,8 @@ namespace WWFix
         private bool pleaseFixVibrato = true;
         private int polyphony = 0;
         private int numberOfStyleLoadRequests = 0;
+
+        long taskSwitcherPress;
 
         public bool firstLogParse { get; private set; }
 
@@ -135,7 +143,7 @@ namespace WWFix
         {
             accLastPlayed = getUnixTime();
             userLastPlayed = getUnixTime();
-         
+
             var th = new Thread(ExecuteInForeground);
             th.Start();
 
@@ -154,7 +162,7 @@ namespace WWFix
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(ex.Message);
             }
-            
+
             // --- Monitor for style load ---
             System.IO.FileSystemWatcher watcher = new System.IO.FileSystemWatcher();
             watcher.SynchronizingObject = this;
@@ -167,7 +175,7 @@ namespace WWFix
             watcher.Deleted += new System.IO.FileSystemEventHandler(OASLogChanged);
 
             watcher.EnableRaisingEvents = true;
-            
+
             // Configure MIDI
 
             doLog(1, InputDevice.DeviceCount + " input devices found:\n");
@@ -331,7 +339,7 @@ namespace WWFix
 
             if (!firstLogParse && !styleLoaded.Equals(lastStyleLoaded))
             {
-                
+
                 numberOfStyleLoadRequests++;
 
                 doLog(1, "Style loaded: " + styleLoaded + "\n");
@@ -366,6 +374,8 @@ namespace WWFix
                     outDevice1.Send(cm);
                     wait(delayTime);
 
+                    wait(100); // Wait until OAS has replied
+
                     Boolean actSync = syncStartActive;
 
                     if (actSync) // Sync Start is active, deactivate it
@@ -383,7 +393,7 @@ namespace WWFix
                     doLog(1, "Muting audio output ...\n");
                     cm = new ChannelMessage(ChannelCommand.Controller, 0, 2, 0);
                     outDevice1.Send(cm);
-                    
+
                     if (numberOfStyleLoadRequests > 4)
                     {
                         // Start Acc:
@@ -447,7 +457,7 @@ namespace WWFix
                     */
 
                     volumeSet = false;
-                    
+
                     if (actSync) // Sync Start was active, re-activate it
                     {
                         wait(delayTime);
@@ -490,7 +500,6 @@ namespace WWFix
                     doLog(1, "Fixing Master Volume ...\n");
                 }
 
-
                 // User has pressed the Vibrato button, block fix:
                 if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 61 && e.Message.Data2 == 127)
                 {
@@ -501,13 +510,56 @@ namespace WWFix
                 if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 61 && e.Message.Data2 == 0)
                 {
                     blockVibratoFix = false;
-
                 }
 
-                // --------------- Fade Out Shortcut ---------------
-                if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 91 && e.Message.Data2 == 127)
+                // --------------- Task Switcher Shortcut ---------------
+                else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 56 && e.Message.Data2 == 127)
                 {
-                    
+                    doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Organ Typ A B Pressed)\n");
+                    taskSwitcherButtonsPressed++;
+                    if (taskSwitcherButtonsPressed == 2)
+                    {
+                        taskSwitcherButtonsPressed = 0;
+                        taskSwitcher();
+                    }
+                }
+                else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 56 && e.Message.Data2 == 0)
+                {
+                    doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Organ Typ A B Released)\n");
+                    taskSwitcherButtonsPressed--;
+                    if (taskSwitcherButtonsPressed == 0)
+                    {
+                        outDevice1.Send(new ChannelMessage(ChannelCommand.NoteOn, 8, 56, 127));
+                        outDevice1.Send(new ChannelMessage(ChannelCommand.NoteOn, 8, 56, 0));
+                    }
+                    if (taskSwitcherButtonsPressed < 0) taskSwitcherButtonsPressed = 0;
+                }
+                else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 57 && e.Message.Data2 == 127)
+                {
+                    doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Organ Typ C D Pressed)\n");
+                    taskSwitcherButtonsPressed++;
+                    if (taskSwitcherButtonsPressed == 2)
+                    {
+                        taskSwitcherButtonsPressed = 0;
+                        taskSwitcher();
+                    }
+                }
+                else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 57 && e.Message.Data2 == 0)
+                {
+                    doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Organ Typ C D Released)\n");
+                    taskSwitcherButtonsPressed--;
+                    if (taskSwitcherButtonsPressed == 0)
+                    {
+                        outDevice1.Send(new ChannelMessage(ChannelCommand.NoteOn, 8, 57, 127));
+                        outDevice1.Send(new ChannelMessage(ChannelCommand.NoteOn, 8, 57, 0));
+                    }
+                    if (taskSwitcherButtonsPressed < 0) taskSwitcherButtonsPressed = 0;
+
+                }
+                // --------------- Fade Out Shortcut ---------------
+                else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 91 && e.Message.Data2 == 127)
+                {
+
                     doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Ending 1 Pressed)\n");
                     endingButtonsPressed++;
                     if (endingButtonsPressed == 2)
@@ -518,7 +570,7 @@ namespace WWFix
                 }
                 else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 91 && e.Message.Data2 == 0)
                 {
-                   
+
                     doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Ending 1 Released)\n");
                     endingButtonsPressed--;
                     if (endingButtonsPressed == 0)
@@ -556,7 +608,7 @@ namespace WWFix
                 }
                 else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 90 && e.Message.Data2 == 0)
                 {
-               
+
                     doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Ending 2 Released)\n");
                     endingButtonsPressed--;
                     if (endingButtonsPressed == 0)
@@ -603,7 +655,6 @@ namespace WWFix
                         outDevice1.Send(new ChannelMessage(ChannelCommand.NoteOn, 8, 63, 0));
                     }
                     if (organTypButtonsPressed < 0) organTypButtonsPressed = 0;
-                    
                 }
                 else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && e.Message.Data1 == 62 && e.Message.Data2 == 127)
                 {
@@ -651,10 +702,13 @@ namespace WWFix
                     if (setLowerDrawbars == true)
                     {
                         outDevice1.Send(new ChannelMessage(ChannelCommand.PitchWheel, 10, 0, e.Message.Data2));
+                        setLower(0, e.Message.Data2);
                         drawBar16.Value = -e.Message.Data2 + 127;
                         ignoreLower2OnEvent = true;
-                    } else
+                    }
+                    else
                     {
+                        setLower(2, e.Message.Data2);
                         outDevice1.Send(e.Message);
                     }
 
@@ -665,13 +719,27 @@ namespace WWFix
                     if (setLowerDrawbars == true)
                     {
                         outDevice1.Send(new ChannelMessage(ChannelCommand.PitchWheel, 10, 2, e.Message.Data2));
+                        setLower(1, e.Message.Data2);
                         drawBar5.Value = -e.Message.Data2 + 127;
                         ignoreLower2OnEvent = true;
                     }
                     else
                     {
+                        setLower(3, e.Message.Data2);
                         outDevice1.Send(e.Message);
                     }
+
+                }
+                else if (e.Message.Command.ToString().Equals("PitchWheel") && e.Message.MidiChannel == 10 && e.Message.Data1 != 1 && e.Message.Data1 != 3)
+                {
+                    doLog(2, "Upper/Ctrl:  " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Other Lower Drawbar)\n");
+
+                    int chan = e.Message.Data1;
+                    if (chan == 2) chan = 1;
+
+                    setLower(chan, e.Message.Data2);
+                    outDevice1.Send(e.Message);
+
 
                 }
                 else if (e.Message.Command.ToString().Equals("PitchWheel") && e.Message.MidiChannel == 0 && e.Message.Data1 == 0)
@@ -749,7 +817,15 @@ namespace WWFix
                         doLog(1, "Finished fixing Vibrato 1/2/3 ...\n");
                         inDevice2.StartRecording();
                     }
+
                     outDevice1.Send(e.Message);
+
+
+                    if (e.Message.Data1 <= VB3SplitPoint && VB3SplitPoint > 0) // Emulate lower manual
+                    {
+                        outDevice3.Send(new ChannelMessage(e.Message.Command, 1, e.Message.Data1, e.Message.Data2));
+                    }
+
 
                 }
                 else if (e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 8 && (e.Message.Data2 == 127 || e.Message.Data2 == 0))
@@ -837,7 +913,102 @@ namespace WWFix
                 }
 
 
+                // Send split Point instruction to VB3 VST if it's open:
+
+                if (setSplitPoint && e.Message.Command.ToString().Equals("NoteOn") && e.Message.MidiChannel == 0)
+                {
+                    if (VB3Running)
+                    {
+                        doLog(1, "Split Point in VB3 VST: " + e.Message.Data1 + "\n");
+                        VB3SplitPoint = e.Message.Data1;
+                        RightClick(400, 450);
+                        wait(100);
+                        outDevice1.Send(e.Message);
+                        wait(100);
+                        outDevice1.Send(new ChannelMessage(ChannelCommand.NoteOff, e.Message.MidiChannel, e.Message.Data1, 0));
+                        wait(100);
+                        setSplitPoint = false;
+                    }
+                }
+
             }, null);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        private static extern void mouse_event(uint dwFlags, int dx, int dy, uint cButtons, uint dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        static extern bool SetCursorPos(int X, int Y);
+
+        const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+        const uint MOUSEEVENTF_LEFTUP = 0x0004;
+        const uint MOUSEEVENTF_MOVE = 0x0001;
+
+        private void Drag(int startX, int startY, int endX, int endY)
+        {
+            endX = endX - startX;
+            endY = endY - startY;
+            SetCursorPos(startX, startY);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            wait(1);
+            mouse_event(MOUSEEVENTF_MOVE, endX, endY, 0, 0);
+            wait(1);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            wait(1);
+        }
+
+        private void doDrags()
+        {
+            if (VB3SplitPoint > 0)
+            {
+                for (int db = 0; db <= 8; db++)
+                {
+                    int diff = lowerDrawbarsSoll[db] - lowerDrawbarsIst[db];
+
+                    if (diff != 0 && lowerDrawbarsSoll[db] == 0)
+                    {
+                        for (int a = 0; a < 4; a++)
+                        {
+                            Drag(442 + (db * 24), 357, 442 + (db * 24), 357 - 16);
+                        }
+                        lowerDrawbarsIst[db] = lowerDrawbarsSoll[db];
+                    }
+                    else if (diff != 0 && lowerDrawbarsSoll[db] == 127)
+                    {
+                        for (int a = 0; a < 4; a++)
+                        {
+                            Drag(442 + (db * 24), 357, 442 + (db * 24), 357 + 16);
+                        }
+                        lowerDrawbarsIst[db] = lowerDrawbarsSoll[db];
+                    }
+                    else if (diff >= 8 || diff <= -8)
+                    {
+                        Drag(442 + (db * 24), 357, 442 + (db * 24), 357 + diff);
+                        lowerDrawbarsIst[db] = lowerDrawbarsSoll[db];
+                    }
+                }
+            }
+        }
+
+
+        private void setLower(int bar, int volume)
+        {
+            /*
+            // Not working yet
+            if(lowerDrawbarsIst[bar] + 10 < lowerDrawbarsSoll[bar] && dragDone)
+            {
+               Drag(442 + (bar * 24), 357, 442 + (bar * 24), 357 - 10);
+               lowerDrawbarsIst[bar] = volume;
+            }
+            if (lowerDrawbarsIst[bar] - 10 > lowerDrawbarsSoll[bar] && dragDone)
+            {
+                Drag(442 + (bar * 24), 357, 442 + (bar * 24), 357 + 10);
+                lowerDrawbarsIst[bar] = volume;
+            }
+            */
+
+            lowerDrawbarsSoll[bar] = volume;
+
         }
 
         private void HandleSysExMessageReceived1(object sender, SysExMessageEventArgs e)
@@ -884,14 +1055,27 @@ namespace WWFix
 
 
         // =======================================================================================================================
-        // Handles for: Unprocessed LED instructions (<=    <= From WERSI OAS to WWFix)
+        // Handles for: Unprocessed LED instructions (From WERSI OAS to WWFix)
 
         private void HandleChannelMessageReceived2(object sender, ChannelMessageEventArgs e)
         {
             context.Post(delegate (object dummy)
             {
 
-                if (e.Message.Command.ToString().Equals("Controller") && e.Message.MidiChannel == 8 && (e.Message.Data1 == 82 || e.Message.Data1 == 83 || e.Message.Data1 == 84 || e.Message.Data1 == 85) && (e.Message.Data2 == 1) && accPlaying)
+                if (e.Message.Command.ToString().Equals("Controller") && e.Message.MidiChannel == 8 && e.Message.Data1 == 47 && e.Message.Data2 == 3)
+                {
+                    doLog(2, "Wersi OAS:   " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Set Split Point)\n");
+                    outDevice2.Send(e.Message);
+                    setSplitPoint = true;
+                    if (VB3SplitPoint > 0 && !VB3Running) openVB3();
+                }
+                else if (e.Message.Command.ToString().Equals("Controller") && e.Message.MidiChannel == 8 && e.Message.Data1 == 47 && e.Message.Data2 != 3)
+                {
+                    doLog(2, "Wersi OAS:   " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Split Point)\n");
+                    outDevice2.Send(e.Message);
+                    setSplitPoint = false;
+                }
+                else if (e.Message.Command.ToString().Equals("Controller") && e.Message.MidiChannel == 8 && (e.Message.Data1 == 82 || e.Message.Data1 == 83 || e.Message.Data1 == 84 || e.Message.Data1 == 85) && (e.Message.Data2 == 1) && accPlaying)
                 {
                     doLog(2, "Wersi OAS:   " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Variation A/B/C/D solid)\n");
                     outDevice2.Send(e.Message);
@@ -904,8 +1088,7 @@ namespace WWFix
                     outDevice2.Send(new ChannelMessage(ChannelCommand.Controller, 8, 90, 0));
 
                 }
-                else
-                if (e.Message.Command.ToString().Equals("Controller") && e.Message.MidiChannel == 8 && (e.Message.Data1 == 80 || e.Message.Data1 == 86 || e.Message.Data1 == 91 || e.Message.Data1 == 90) && (e.Message.Data2 == 0 || e.Message.Data2 == 1 || e.Message.Data2 == 2))
+                else if (e.Message.Command.ToString().Equals("Controller") && e.Message.MidiChannel == 8 && (e.Message.Data1 == 80 || e.Message.Data1 == 86 || e.Message.Data1 == 91 || e.Message.Data1 == 90) && (e.Message.Data2 == 0 || e.Message.Data2 == 1 || e.Message.Data2 == 2))
                 {
                     doLog(2, "Wersi OAS:   " + e.Message.Command.ToString() + ' ' + e.Message.MidiChannel.ToString() + ' ' + e.Message.Data1.ToString() + ' ' + e.Message.Data2.ToString() + " (Intro/Ending LED)\n");
 
@@ -1153,7 +1336,7 @@ namespace WWFix
                     }
                     outDevice3.Send(e.Message);
 
-                }                
+                }
                 else
                 {
                     outDevice3.Send(e.Message);
@@ -1214,11 +1397,13 @@ namespace WWFix
         }
 
 
+        Boolean VB3Running = false;
         private void ExecuteInForeground()
         {
-
+            int cnt = 0;
             while (true)
             {
+                cnt++;
                 if (accPlaying && (accLastPlayed + 500) < getUnixTime())
                 {
                     accPlaying = false;
@@ -1233,6 +1418,23 @@ namespace WWFix
                 }
 
                 Thread.Sleep(100);
+
+                Boolean VB3RunningTemp = false;
+                Process[] processlist = Process.GetProcesses();
+                foreach (Process process in processlist)
+                {
+                    if (!String.IsNullOrEmpty(process.MainWindowTitle))
+                    {
+                        if (process.MainWindowTitle.Contains("vb3w.dll"))
+                        {
+                            VB3RunningTemp = true;
+                        }
+                    }
+                }
+                VB3Running = VB3RunningTemp;
+
+                if (VB3Running) doDrags();
+
             }
         }
 
@@ -1360,13 +1562,22 @@ namespace WWFix
         private void logMIDI_Click(object sender, EventArgs e)
         {
             focusLog();
-        } 
+        }
 
         private void logImportant_Click(object sender, EventArgs e)
         {
             focusLog();
         }
-
+        
+        public void RightClick(int x, int y)
+        {
+            //Cursor.Position = new Point((int)x, (int)y);
+            Cursor.Position = new System.Drawing.Point(x, y);
+            mouse_event((int)(MouseActionAdresses.RIGHTDOWN), 0, 0, 0, 0);
+            Thread.Sleep(100);
+            mouse_event((int)(MouseActionAdresses.RIGHTUP), 0, 0, 0, 0);
+            Thread.Sleep(100);
+        }
 
         public void LeftClick(int x, int y)
         {
@@ -1427,12 +1638,12 @@ namespace WWFix
             outDevice2.Send(new ChannelMessage(ChannelCommand.Controller, 8, 90, 0));
             outDevice2.Send(new ChannelMessage(ChannelCommand.Controller, 8, 91, 0));
         }
-
-
-        private void button1_Click(object sender, EventArgs e)
+        
+        private void taskSwitcher()
         {
-
-           
+            WWSwitch.TaskSwitcher ts = new WWSwitch.TaskSwitcher();
+            ts.Show();
         }
+
     }
 }

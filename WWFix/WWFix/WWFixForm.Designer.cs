@@ -337,7 +337,6 @@
             this.button1.Text = "Test";
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Visible = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // WWFixForm
             // 
@@ -372,7 +371,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "WWFixForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "WWFix 0.3";
+            this.Text = "WWFix 0.4";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.WWFixForm_FormClosed);
             this.Load += new System.EventHandler(this.WWFixForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.drawBar16)).EndInit();
