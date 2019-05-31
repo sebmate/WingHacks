@@ -72,7 +72,7 @@ Experimental: You can use the lower drawbars to controll the VB3 lower ones. Thi
 
 To leave the Single-VB3-VST Mode, you have to restart the keyboard (or OAS and WWFix). This is because after the OAS software has recieved MIDI events from the lower manual, it thinks it has two and there is no way to stop it from thinking this.
 
-![SingleVB3](SingleVB3.png)
+![SinlgeVB3.png](SinlgeVB3.png.png)
 
 ## Installation
 
