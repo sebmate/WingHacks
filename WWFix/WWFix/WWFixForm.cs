@@ -1,22 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using Sanford.Multimedia;
 using Sanford.Multimedia.Midi;
-using System;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
@@ -123,23 +110,15 @@ namespace WWFix
             }
         }
 
-
         public WWFixForm()
         {
+            String logfile = "C:\\Wersi\\System\\logfiles\\wersi.log";
             // Truncate the WERSI OAS log file
-            System.IO.File.WriteAllText("C:\\Wersi\\System\\logfiles\\wersi.log", "");
-
-            wait(2000);
+            System.IO.File.WriteAllText(logfile, "");
             InitializeComponent();
         }
 
-        private void WWFixForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad(EventArgs e)     
         {
             accLastPlayed = getUnixTime();
             userLastPlayed = getUnixTime();
@@ -173,9 +152,47 @@ namespace WWFix
             watcher.Changed += new System.IO.FileSystemEventHandler(OASLogChanged);
             watcher.Created += new System.IO.FileSystemEventHandler(OASLogChanged);
             watcher.Deleted += new System.IO.FileSystemEventHandler(OASLogChanged);
-
             watcher.EnableRaisingEvents = true;
 
+            // --- Monitor for VB3 upper configuration change ---
+            System.IO.FileSystemWatcher watcher2 = new System.IO.FileSystemWatcher();
+            watcher2.SynchronizingObject = this;
+            watcher2.Path = "C:\\Wersi\\Plugins\\Drawbars\\VB3\\";
+            watcher2.NotifyFilter = System.IO.NotifyFilters.LastAccess | System.IO.NotifyFilters.LastWrite
+               | System.IO.NotifyFilters.FileName | System.IO.NotifyFilters.DirectoryName;
+            watcher2.Filter = "*.ini";
+            watcher2.Changed += new System.IO.FileSystemEventHandler(VB3Configured);
+            watcher2.Created += new System.IO.FileSystemEventHandler(VB3Configured);
+            watcher2.Deleted += new System.IO.FileSystemEventHandler(VB3Configured);
+            watcher2.EnableRaisingEvents = true;
+
+            // Wait until all MIDI Devices are present:
+
+            int foundDevices = 0, searches = 0;
+            while (foundDevices != 6 && searches <= 10)
+            {
+                foundDevices = 0;
+                searches++;
+                for (int a = 0; a < InputDevice.DeviceCount; a++)
+                {
+                    if (InputDevice.GetDeviceCapabilities(a).name.Equals("Wersi MIDI")) foundDevices++;
+                    if (InputDevice.GetDeviceCapabilities(a).name.Equals("WWFix Input")) foundDevices++;
+                    if (InputDevice.GetDeviceCapabilities(a).name.Equals("MIDIIN3 (Wersi MIDI)")) foundDevices++;
+                }
+                for (int a = 0; a < OutputDevice.DeviceCount; a++)
+                {
+                    if (OutputDevice.GetDeviceCapabilities(a).name.Equals("WWFix Output")) foundDevices++;
+                    if (OutputDevice.GetDeviceCapabilities(a).name.Equals("Wersi MIDI")) foundDevices++;
+                    if (OutputDevice.GetDeviceCapabilities(a).name.Equals("WWFix Output2")) foundDevices++;
+                }
+                if (foundDevices != 6)
+                {
+                    doLog(1, "Waiting for MIDI devices ...\n");
+                    Console.WriteLine("Waiting for MIDI devices ...");
+                    wait(1000);
+                }
+            }
+            
             // Configure MIDI
 
             doLog(1, InputDevice.DeviceCount + " input devices found:\n");
@@ -292,19 +309,56 @@ namespace WWFix
                 }
             }
 
+            /*
+            doLog(1, "Starting the WERSI OAS program ...\n");
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo("WersiDB.exe");
+            p.StartInfo.WorkingDirectory = "C:\\Wersi\\System\\Release\\";
+            p.StartInfo.CreateNoWindow = true;
+            p.Start();
+            */
+            
             base.OnLoad(e);
         }
+
+
 
         private void doLog(int type, string message)
         {
             if (type == 1 && logImportant.Checked)
             {
                 logText.AppendText(message);
+                /*
+                this.logText.Invoke((MethodInvoker)delegate {
+                    // Running on the UI thread
+                    this.logText.Text += message;
+                });*/
+                focusLog();
             }
             if (type == 2 && logMIDI.Checked)
             {
                 logText.AppendText(message);
+                /*
+                this.logText.Invoke((MethodInvoker)delegate {
+                    // Running on the UI thread
+                    this.logText.Text += message;
+                });*/
+                focusLog();
             }
+        }
+
+        private void VB3Configured(object source, System.IO.FileSystemEventArgs e)
+        {
+            doLog(1, "Copying config of VB3 upper to VB3 lower ...\n");
+            try
+            {
+                System.IO.File.Copy("C:\\Wersi\\Plugins\\Drawbars\\VB3\\vb3w.ini", "C:\\Wersi\\Plugins\\Drawbars\\VB3Lower\\vb3w.ini", true);
+            }
+            catch (Exception iox)
+            {
+                Console.WriteLine(iox.Message);
+            }
+
         }
 
         private void OASLogChanged(object source, System.IO.FileSystemEventArgs e)
@@ -339,6 +393,20 @@ namespace WWFix
 
             if (!firstLogParse && !styleLoaded.Equals(lastStyleLoaded))
             {
+                preloadStyle(styleLoaded);
+            }
+        }
+
+
+        Boolean alreadyPreloading = false;
+
+        private void preloadStyle(String styleLoaded)
+        {
+
+            /*new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+                */
 
                 numberOfStyleLoadRequests++;
 
@@ -346,8 +414,9 @@ namespace WWFix
                 lastStyleLoaded = styleLoaded;
                 firstLogParse = false;
 
-                if (numberOfStyleLoadRequests > 3 && /*!userPlaying &&*/ !accPlaying)
+                if (numberOfStyleLoadRequests > 3 && /*!userPlaying &&*/ !accPlaying && !alreadyPreloading)
                 {
+                    alreadyPreloading = true;
 
                     wait(100);
 
@@ -469,13 +538,16 @@ namespace WWFix
                     }
 
                     ignoreStartStopLED = false;
-
+                    alreadyPreloading = false;
                 }
                 else
                 {
                     doLog(1, "WARNING: Not pre-loading style because the accompaniment is active or the WERSI OAS app was still initializing.\n");
                 }
-            }
+         //   }).Start();
+
+
+
         }
 
 
@@ -1568,7 +1640,7 @@ namespace WWFix
         {
             focusLog();
         }
-        
+
         public void RightClick(int x, int y)
         {
             //Cursor.Position = new Point((int)x, (int)y);
@@ -1638,12 +1710,21 @@ namespace WWFix
             outDevice2.Send(new ChannelMessage(ChannelCommand.Controller, 8, 90, 0));
             outDevice2.Send(new ChannelMessage(ChannelCommand.Controller, 8, 91, 0));
         }
-        
+
         private void taskSwitcher()
         {
             WWSwitch.TaskSwitcher ts = new WWSwitch.TaskSwitcher();
             ts.Show();
         }
 
+        private void WWFixForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

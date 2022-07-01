@@ -1,0 +1,14 @@
+Y:\Development\WingHacks-master\WWFix\WWFix\bin\Release\WWFix.exe
+Y:\Development\WingHacks-master\WWFix\WWFix\bin\Release\WWFix.pdb
+Y:\Development\WingHacks-master\WWFix\WWFix\bin\Release\Sanford.Multimedia.Midi.dll
+Y:\Development\WingHacks-master\WWFix\WWFix\bin\Release\Sanford.Multimedia.Midi.pdb
+Y:\Development\WingHacks-master\WWFix\WWFix\bin\Release\Sanford.Multimedia.Midi.xml
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.csprojAssemblyReference.cache
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.Properties.Resources.resources
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWSwitch.TaskSwitcher.resources
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.WWFixForm.resources
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.csproj.GenerateResource.cache
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.csproj.CoreCompileInputs.cache
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.csproj.CopyComplete
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.exe
+Y:\Development\WingHacks-master\WWFix\WWFix\obj\Release\WWFix.pdb

@@ -52,7 +52,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.drawBar16)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.drawBar5)).BeginInit();
             this.SuspendLayout();
@@ -327,23 +326,11 @@
             this.label12.TabIndex = 23;
             this.label12.Text = "8";
             // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.Salmon;
-            this.button1.Location = new System.Drawing.Point(328, 390);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(198, 32);
-            this.button1.TabIndex = 24;
-            this.button1.Text = "Test";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Visible = false;
-            // 
             // WWFixForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(734, 423);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.label10);
@@ -371,7 +358,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "WWFixForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "WWFix 0.4";
+            this.Text = "WWFix 0.5";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.WWFixForm_FormClosed);
             this.Load += new System.EventHandler(this.WWFixForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.drawBar16)).EndInit();
@@ -407,6 +394,5 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Button button1;
     }
 }
