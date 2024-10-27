@@ -78,10 +78,10 @@ To leave the Single-VB3-VST Mode, you have to restart the keyboard (or OAS and W
 
 To install the tool, proceed as follows:
 
-1. Exit the Wersi OAS application.
+1. Exit the Wersi OAS application by selecting the "Settings" tab on the top of the screen and then the Wersi logo in the upper right corner.
 2. Copy the FFix program and associated files (from https://github.com/sebmate/WingHacks/tree/master/WWFix/WWFix/bin/Debug) onto a folder on your harddisk. Create a link to WWFix.exe, and put this link into the autostart menu of Windows.
 3. Install loopMIDI from https://www.tobias-erichsen.de/software/loopmidi.html
-4. Create trhee new virtual MIDI ports, "WWFix Input", "WWFix Output", and "WWFix Output2", as shown in the following image. Note that the "To VST" port is not required.
+4. Create three new virtual MIDI ports, "WWFix Input", "WWFix Output", and "WWFix Output2", as shown in the following image. Note that the "To VST" port is not required.
 
 ![loopMIDI](loopMIDI.png)
 
@@ -89,13 +89,20 @@ To install the tool, proceed as follows:
 
 ![WWFixConfig](WWFixConfig.png)
 
-4. Configure the Wersi OAS application as follows. Connect "Manual MIDI In" to "WWFix Ouput", "MIDI Pedal In port" to "WWFix Ouput2", and "Manual MIDI Out" to "WWFix Input":
+4. There should be a link on the Windows desktop or start menu labeled "WersiServiceStart". Launch it and configure the Wersi OAS application as follows. Connect "Manual MIDI In" to "WWFix Ouput", "MIDI Pedal In port" to "WWFix Ouput2", and "Manual MIDI Out" to "WWFix Input":
 
 ![WersiCfg](WersiCfg.png)
 
 You may also refer to the integration overview chart on top of this page.
 
 5. Start it. It should work!
+
+## Deinstallation
+
+1. Uninstall or at least remove loopMIDI and WWFix from the Windows autostart. Make sure that both programs are no longer running.
+2. Revert the MIDI settings in the Wersi application (WersiServiceStart), as shown in the following screenshot:
+
+![PegasusWing-StandardSettings](PegasusWing-StandardSettings.png)
 
 
 ## Problems and Solutions
