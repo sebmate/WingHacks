@@ -1,4 +1,4 @@
-﻿namespace WWFix
+﻿﻿namespace WWFix
 {
     partial class WWFixForm
     {
@@ -52,6 +52,7 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
+            this.preloadStyles = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.drawBar16)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.drawBar5)).BeginInit();
             this.SuspendLayout();
@@ -113,7 +114,7 @@
             this.drawBar16.Maximum = 127;
             this.drawBar16.Name = "drawBar16";
             this.drawBar16.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.drawBar16.Size = new System.Drawing.Size(42, 209);
+            this.drawBar16.Size = new System.Drawing.Size(45, 209);
             this.drawBar16.SmallChange = 32;
             this.drawBar16.TabIndex = 4;
             this.drawBar16.TickFrequency = 16;
@@ -130,7 +131,7 @@
             this.drawBar5.Maximum = 127;
             this.drawBar5.Name = "drawBar5";
             this.drawBar5.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.drawBar5.Size = new System.Drawing.Size(42, 209);
+            this.drawBar5.Size = new System.Drawing.Size(45, 209);
             this.drawBar5.SmallChange = 32;
             this.drawBar5.TabIndex = 5;
             this.drawBar5.TickFrequency = 16;
@@ -326,11 +327,23 @@
             this.label12.TabIndex = 23;
             this.label12.Text = "8";
             // 
+            // preloadStyles
+            // 
+            this.preloadStyles.AutoSize = true;
+            this.preloadStyles.Location = new System.Drawing.Point(435, 394);
+            this.preloadStyles.Name = "preloadStyles";
+            this.preloadStyles.Size = new System.Drawing.Size(91, 17);
+            this.preloadStyles.TabIndex = 24;
+            this.preloadStyles.Text = "Preload styles";
+            this.preloadStyles.UseVisualStyleBackColor = true;
+            this.preloadStyles.CheckedChanged += new System.EventHandler(this.preloadStyles_CheckedChanged_1);
+            // 
             // WWFixForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(734, 423);
+            this.Controls.Add(this.preloadStyles);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.label10);
@@ -358,7 +371,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "WWFixForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "WWFix 0.5";
+            this.Text = "WWFix 0.6";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.WWFixForm_FormClosed);
             this.Load += new System.EventHandler(this.WWFixForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.drawBar16)).EndInit();
@@ -394,5 +407,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.CheckBox preloadStyles;
     }
 }

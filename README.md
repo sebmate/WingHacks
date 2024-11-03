@@ -11,7 +11,7 @@ Note that WWFix is not a "hack", as Wersi actually allows you to change the inpu
 
 Since version 0.3, there is full support for the rare variants with two manuals (Wersi Pegasus Wing Duo).
 
-The program uses the excellent C# MIDI Toolkit by Leslie Sanford (see https://www.codeproject.com/Articles/6228/%2fArticles%2f6228%2fC-MIDI-Toolkit). Thanks for this, Leslie!
+The program uses the excellent C# MIDI Toolkit by Leslie Sanford (see https://github.com/tebjan/Sanford.Multimedia.Midi).
 
 The integration is shown in the following chart:
 
@@ -24,16 +24,14 @@ The tool addresses the following problems:
 ### Volume jump after switching the Wing on
 **Problem:** The Wing always starts with a default volume (50%) and ignores to what the volume slider is actually set. However, if a change is registered at the volume silder (e.g. by random signal noise), this triggers a MIDI event and the volume jumps to the set value. This is very annoying, because forgetting to move the volume control beforehand leads to an unpleasant jump in volume when one is already playing.  
 **Implementation in WWFix:** Since WWFix intervenes the MIDI communication, the solution is simple: The tool simply saves the volume on exit/shutdown and restores it at the next system start.  
-**Note:** The correct volume is first set when the user presses a key on the keyboard or a control panel button for the first time.  
+**Note:** The correct volume is first set when the user presses a key on the keyboard or a control panel button for the first time.
 
-### Styles start playing with the wrong voices  
-**Problem:** The OAS application has a bug that causes styles to start playing with the wrong instruments first (I think only on Acc 3). Probably the software does not completely analyze which instruments are needed by the style.  
-**Solution:** A short start of the style initializes all instruments correctly. This needs to be done for Intro 1, 2 and a normal variation.  
-**Implementation in WWFix:** The tool monitors the OAS log to see if a new style has been loaded. If so, it automatically starts and stops it silently in the background. This will load the instruments correctly into memory.  
-**Limitations/Comment:** Preloading only occurs when WWFix thinks that the auto accompaniment is not running. Therefore you should wait for about 2 seconds between changing the styles. If a style has been pre-loaded, you can tell by the fact that the first indicators of "Number of bars" and "Metronome" on the screen turn red. If these remain blue, the style was not preloaded. The variation LEDs also flicker for a short moment due to the silent start in the background.  
+### No lower 16" and 5 1/3" drawbars
+**Problem:** On many Lower VB3 instruments, the 16" or 5 1/3" drawbars are active and cannot turned down. In general, it is also not possible to manipulate these two missing drawbars.
+**Solution:** WWFix simply provides two virtual drawbars on the program's user interface. In addition, the 16" and 5 1/3" drawbars can be controlled via the 8" and 4" drawbars, as long as the "Lower 2 On" button is held pressed. This allows for manipulating the non-existing drawbars without having to switch to the WWFix window.
 
 ### Bad behaviour of Intro/Ending LEDs   
-**Problem:** After editing a style to use any into/ending variations other than 1-2, the LEDs on the control panel are not switched correctly. E.g., when the style is modified to use intros 2-3, and when pressing on the "Intro 2" button, this correctly starts the style's intro 3, but it does not activate the LED of the "Intro 2" button. Instead it seems to activate a "Intro 3" button LED, which of course does not exist.  
+**Problem:** After editing a style to use any into/ending variations other than 1-2, the LEDs on the control panel are not switched correctly. E.g., when the style is modified to use intros 2-3, and when pressing on the "Intro 2" button, this correctly starts the style's intro 3, but it does not activate the LED of the "Intro 2" button. Instead it seems to activate a "Intro 3" button LED, which of course does not exist.
 **Implementation in WWFix:** The tool simply remembers which button was pressed by the user and then activates this LED.
 
 ### The VB3 Vibrato is not activated after loading a preset.  
@@ -43,9 +41,11 @@ The tool addresses the following problems:
 **Two-manual version:** This does not yet work on the lower MIDI keyboard on the rare two-manual version, as this manual communicates over another MIDI interface. The vibrato fix is applied after pressing a control panel button or a key on the upper manual.  
 **Limitation:** This might not be a proper implementation. Some VB3 voice presets seem to initialize other vibrato effects that are not accessible by the "four-state" hardware button. However, the tool sets the vibrato effect to what the LEDs indicate. I might have to re-think this in a future release.
 
-### No lower 16" and 5 1/3" drawbars  
-**Problem:** On many Lower VB3 instruments, the 16" or 5 1/3" drawbars are active and cannot turned down. In general, it is also not possible to manipulate these two missing drawbars.  
-**Solution:** WWFix simply provides two virtual drawbars on the program's user interface. In addition, the 16" and 5 1/3" drawbars can be controlled via the 8" and 4" drawbars, as long as the "Lower 2 On" button is held pressed. This allows for manipulating the non-existing drawbars without having to switch to the WWFix window.
+### Styles start playing with the wrong voices (Fix = Experimental!)
+**Problem:** The OAS application has a bug that causes styles to start playing with the wrong instruments first (I think only on Acc 3). Probably the software does not completely analyze which instruments are needed by the style.
+**Solution:** A short start of the style initializes all instruments correctly. This needs to be done for Intro 1, 2 and a normal variation.
+**Implementation in WWFix:** The tool monitors the OAS log to see if a new style has been loaded. If so, it automatically starts and stops it silently in the background. This will load the instruments correctly into memory. In version 0.6 and above, this feature can be enabled or disabled using the checkbox "Preload styles" in the bottom of the window.
+**Limitations/Comment:** Preloading only occurs when WWFix thinks that the auto accompaniment is not running. Therefore you should wait for about 2 seconds between changing the styles. If a style has been pre-loaded, you can tell by the fact that the first indicators of "Number of bars" and "Metronome" on the screen turn red. If these remain blue, the style was not preloaded. The variation LEDs also flicker for a short moment due to the silent start in the background.
 
 ## Additional Features
 
@@ -54,7 +54,6 @@ The tool addresses the following problems:
 * Single-VB3-VST Mode (see below).
 * As stated above, keep "Lower 2 On" pressed and use the Lower 8" and 4" drawbar potis to set the 16" and 5 1/3" drawbars.
 * Press "Perc On" and "Perc 2nd/3rd" together to open the task switcher (similar to WWSwitch as shown below)
-
 
 ## Single-VB3-VST Mode (experimental)
 
@@ -104,7 +103,6 @@ You may also refer to the integration overview chart on top of this page.
 
 ![PegasusWing-StandardSettings](PegasusWing-StandardSettings.png)
 
-
 ## Problems and Solutions
 
 On older V1 hardware, the installation as described above may not work, because the PC is too slow. For it to work, the MIDI driver (Wersi MIDI) and loopMIDI must be loaded before WWFix starts. WWFix must also be started before the Wersi OAS application. To guarantee this starting order, the package contains a file called "DelayedStart.bat", which can be included in the Windows autostart menu. Of course the Wersi application (WersiDB) must be removed from the autostart menu. Please also note that the batch file may have to be modified (file paths).
@@ -114,6 +112,7 @@ On older V1 hardware, the installation as described above may not work, because 
 * 0.1 to 0.2: Improved many of the original features, added Intro/Ending LEDs fix, added option to control the two missing lower drawbars while holding the "Lower 2 On" button pressed. Message logging reduced by default. Now deletes Wersi OAS log file upon start.
 * 0.2 to 0.3: Many improvements and fixes. Support for the two-manual version (Wersi Wing Pegasus Duo). Implemented the features "Fade Out" and quick-opening of the VB3 preset.
 * 0.3 to 0.4: Added further delay for pre-loading styles. This may fix the 300 bpm problem. Added the task switcher and Single-VB3-VST Mode.
+* 0.6: Added checkbox to disable preloading of styles.
 
 # WWSwitcher
 
