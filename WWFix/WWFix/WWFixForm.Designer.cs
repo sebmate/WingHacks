@@ -337,6 +337,7 @@
             this.preloadStyles.Text = "Preload styles";
             this.preloadStyles.UseVisualStyleBackColor = true;
             this.preloadStyles.CheckedChanged += new System.EventHandler(this.preloadStyles_CheckedChanged_1);
+            this.preloadStyles.MouseUp += new System.Windows.Forms.MouseEventHandler(this.preloadStyles_MouseUp);
             // 
             // WWFixForm
             // 
@@ -371,7 +372,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "WWFixForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "WWFix 0.6";
+            this.Text = "WWFix 0.61";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.WWFixForm_FormClosed);
             this.Load += new System.EventHandler(this.WWFixForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.drawBar16)).EndInit();

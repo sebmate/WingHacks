@@ -154,6 +154,7 @@ namespace WWFix
             watcher.Changed += new System.IO.FileSystemEventHandler(OASLogChanged);
             watcher.Created += new System.IO.FileSystemEventHandler(OASLogChanged);
             watcher.Deleted += new System.IO.FileSystemEventHandler(OASLogChanged);
+            watcher.EnableRaisingEvents = true;
 
             // Load preload styles setting:
 
@@ -165,12 +166,10 @@ namespace WWFix
                     if (preload)
                     {
                         preloadStyles.Checked = true;
-                        watcher.EnableRaisingEvents = true;
                     }
                     else
                     {
                         preloadStyles.Checked = false;
-                        watcher.EnableRaisingEvents = false;
                     }
                 }
             }
@@ -443,68 +442,98 @@ namespace WWFix
             lastStyleLoaded = styleLoaded;
             firstLogParse = false;
 
-            if (numberOfStyleLoadRequests > 3 && /*!userPlaying &&*/ !accPlaying && !alreadyPreloading)
+            if (preloadStyles.Checked)
             {
-                alreadyPreloading = true;
-
-                wait(100);
-
-                ignoreStartStopLED = true;
-                volumePotiIgnore = true;
-
-                doLog(1, "Silently pre-loading style:\n");
-
-                int delayTime = 10;
-
-                ChannelMessage cm;
-
-                // Switch the Sync Start button through one to ensure it's in the correct state:
-
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 0);
-                outDevice1.Send(cm);
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 127);
-                outDevice1.Send(cm);
-                wait(delayTime);
-
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 0);
-                outDevice1.Send(cm);
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 127);
-                outDevice1.Send(cm);
-                wait(delayTime);
-
-                wait(100); // Wait until OAS has replied
-
-                Boolean actSync = syncStartActive;
-
-                if (actSync) // Sync Start is active, deactivate it
+                if (numberOfStyleLoadRequests > 3 && /*!userPlaying &&*/ !accPlaying && !alreadyPreloading)
                 {
-                    doLog(1, "Temporarily disabling 'Sync Start' ...\n");
+                    alreadyPreloading = true;
+
+                    wait(100);
+
+                    ignoreStartStopLED = true;
+                    volumePotiIgnore = true;
+
+                    doLog(1, "Silently pre-loading style:\n");
+
+                    int delayTime = 10;
+
+                    ChannelMessage cm;
+
+                    // Switch the Sync Start button through one to ensure it's in the correct state:
 
                     cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 0);
                     outDevice1.Send(cm);
                     cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 127);
                     outDevice1.Send(cm);
                     wait(delayTime);
-                }
 
-                // Set volume to 0:
-                doLog(1, "Muting audio output ...\n");
-                cm = new ChannelMessage(ChannelCommand.Controller, 0, 2, 0);
-                outDevice1.Send(cm);
+                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 0);
+                    outDevice1.Send(cm);
+                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 127);
+                    outDevice1.Send(cm);
+                    wait(delayTime);
 
-                if (numberOfStyleLoadRequests > 4)
-                {
-                    // Start Acc:
-                    doLog(1, "Starting Intro 1 ...\n");
-                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 80, 127);
+                    wait(100); // Wait until OAS has replied
+
+                    Boolean actSync = syncStartActive;
+
+                    if (actSync) // Sync Start is active, deactivate it
+                    {
+                        doLog(1, "Temporarily disabling 'Sync Start' ...\n");
+
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 0);
+                        outDevice1.Send(cm);
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 127);
+                        outDevice1.Send(cm);
+                        wait(delayTime);
+                    }
+
+                    // Set volume to 0:
+                    doLog(1, "Muting audio output ...\n");
+                    cm = new ChannelMessage(ChannelCommand.Controller, 0, 2, 0);
                     outDevice1.Send(cm);
-                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 80, 0);
-                    outDevice1.Send(cm);
+
+                    if (numberOfStyleLoadRequests > 4)
+                    {
+                        // Start Acc:
+                        doLog(1, "Starting Intro 1 ...\n");
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 80, 127);
+                        outDevice1.Send(cm);
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 80, 0);
+                        outDevice1.Send(cm);
+
+                        wait(delayTime);
+
+                        // Stop Acc:
+                        doLog(1, "Stopping Intro 1 ...\n");
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 127);
+                        outDevice1.Send(cm);
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 0);
+                        outDevice1.Send(cm);
+
+                        wait(delayTime);
+
+                        // Start Acc:
+                        doLog(1, "Starting Intro 2 ...\n");
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 86, 127);
+                        outDevice1.Send(cm);
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 86, 0);
+                        outDevice1.Send(cm);
+
+                        wait(delayTime);
+
+                        // Stop Acc:
+                        doLog(1, "Stopping Intro 2 ...\n");
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 127);
+                        outDevice1.Send(cm);
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 0);
+                        outDevice1.Send(cm);
+                    }
 
                     wait(delayTime);
 
-                    // Stop Acc:
-                    doLog(1, "Stopping Intro 1 ...\n");
+                    // Start Acc:
+                    doLog(1, "Starting style ...\n");
                     cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 127);
                     outDevice1.Send(cm);
                     cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 0);
@@ -512,66 +541,43 @@ namespace WWFix
 
                     wait(delayTime);
 
-                    // Start Acc:
-                    doLog(1, "Starting Intro 2 ...\n");
-                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 86, 127);
-                    outDevice1.Send(cm);
-                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 86, 0);
-                    outDevice1.Send(cm);
-
-                    wait(delayTime);
-
                     // Stop Acc:
-                    doLog(1, "Stopping Intro 2 ...\n");
+                    doLog(1, "Stopping style ...\n");
                     cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 127);
                     outDevice1.Send(cm);
                     cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 0);
                     outDevice1.Send(cm);
+
+                    // Set volume back:
+                    /*
+                    doLog(1, "Turning audio output on again ...\n");
+                    cm = new ChannelMessage(ChannelCommand.Controller, 0, 2, masterVolume);
+                    outDevice1.Send(cm);
+                    */
+
+                    volumeSet = false;
+
+                    if (actSync) // Sync Start was active, re-activate it
+                    {
+                        wait(delayTime);
+                        doLog(1, "Re-activating 'Sync Start'.\n");
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 0);
+                        outDevice1.Send(cm);
+                        cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 127);
+                        outDevice1.Send(cm);
+                    }
+
+                    ignoreStartStopLED = false;
+                    alreadyPreloading = false;
                 }
-
-                wait(delayTime);
-
-                // Start Acc:
-                doLog(1, "Starting style ...\n");
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 127);
-                outDevice1.Send(cm);
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 0);
-                outDevice1.Send(cm);
-
-                wait(delayTime);
-
-                // Stop Acc:
-                doLog(1, "Stopping style ...\n");
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 127);
-                outDevice1.Send(cm);
-                cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 89, 0);
-                outDevice1.Send(cm);
-
-                // Set volume back:
-                /*
-                doLog(1, "Turning audio output on again ...\n");
-                cm = new ChannelMessage(ChannelCommand.Controller, 0, 2, masterVolume);
-                outDevice1.Send(cm);
-                */
-
-                volumeSet = false;
-
-                if (actSync) // Sync Start was active, re-activate it
+                else
                 {
-                    wait(delayTime);
-                    doLog(1, "Re-activating 'Sync Start'.\n");
-                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 0);
-                    outDevice1.Send(cm);
-                    cm = new ChannelMessage(ChannelCommand.NoteOn, 8, 88, 127);
-                    outDevice1.Send(cm);
+                    doLog(1, "WARNING: Not pre-loading style because the accompaniment is active or the WERSI OAS app was still initializing.\n");
                 }
-
-                ignoreStartStopLED = false;
-                alreadyPreloading = false;
             }
             else
             {
-                doLog(1, "WARNING: Not pre-loading style because the accompaniment is active or the WERSI OAS app was still initializing.\n");
+                doLog(1, "WARNING: Not pre-loading style because the option is disabled.\n");
             }
             //   }).Start();
 
@@ -1748,15 +1754,25 @@ namespace WWFix
 
         private void WWFixForm_Load(object sender, EventArgs e)
         {
-
         }
 
 
         private void preloadStyles_CheckedChanged_1(object sender, EventArgs e)
         {
-            System.IO.File.WriteAllText("preload.ini", "" + preloadStyles.Checked);
+        }
 
-            if (preloadStyles.Checked) { watcher.EnableRaisingEvents = true; } else { watcher.EnableRaisingEvents = false; }
+        private void preloadStyles_MouseUp(object sender, MouseEventArgs e)
+        {
+            System.IO.File.WriteAllText("preload.ini", "" + preloadStyles.Checked);
+            if (preloadStyles.Checked)
+            {
+                doLog(1, "Enabling preloading of styles ...\n");
+                numberOfStyleLoadRequests = 5;
+            }
+            else
+            {
+                doLog(1, "Disabling preloading of styles ...\n");
+            }
         }
     }
 }

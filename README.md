@@ -113,6 +113,7 @@ On older V1 hardware, the installation as described above may not work, because 
 * 0.2 to 0.3: Many improvements and fixes. Support for the two-manual version (Wersi Wing Pegasus Duo). Implemented the features "Fade Out" and quick-opening of the VB3 preset.
 * 0.3 to 0.4: Added further delay for pre-loading styles. This may fix the 300 bpm problem. Added the task switcher and Single-VB3-VST Mode.
 * 0.6: Added checkbox to disable preloading of styles.
+* 0.61: Fixed behaviour of checkbox for style preloading.
 
 # WWSwitcher
 
